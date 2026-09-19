@@ -1,6 +1,6 @@
 # inet4031-team-1
 
-Sprint 1: Scrum Master = ___, System Admin = ___, QA = ___, Developers = ___
+Sprint 1: Scrum Master = Tim Revnew, System Admin = ___, QA = ___, Developers = ___
 
 Sprint 2: Scrum Master = ___, System Admin = ___, QA = ___, Developers = ___
 
