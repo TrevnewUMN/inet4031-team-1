@@ -6,7 +6,7 @@
 | Tim Revnew |revne003@umn.edu |TrevnewUMN |
 | Aisha | |
 | Mohamud |abdal110@umn.edu |
-| Jama | |
+| Jama | aden0100@umn.edu|
 | Anwar | | 
 
 Project Board: https://github.com/users/TrevnewUMN/projects/2
