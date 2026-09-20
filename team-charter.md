@@ -7,7 +7,7 @@
 | Tim Revnew |revne003@umn.edu |TrevnewUMN | Scrum Master |
 | Aisha | | AishaAbdullahi-12 | System Administrator |
 | Mohamud |abdal110@umn.edu | happyducks101 | QA |
-| Jama | | | Developer |
+| Jama | aden0100@umn.edu | JamaAden | Developer |
 | Anwar | | | Developer |
 
 ## Communication
