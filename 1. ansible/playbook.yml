@@ -1,0 +1,8 @@
+---
+- name: Verify INET4031 environment
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Test Ansible connectivity
+      ansible.builtin.ping:
