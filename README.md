@@ -9,6 +9,6 @@
 | Jama | |
 | Anwar | | 
 
-
+Project Board: https://github.com/users/TrevnewUMN/projects/2
 
 Google Doc Link: https://docs.google.com/document/d/1jXFGI4mOJ7J8z_GTm8XBg73XenUyOn21bZ06uHsus9M/edit?usp=sharing
