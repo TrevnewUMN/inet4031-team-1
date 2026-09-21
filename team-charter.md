@@ -8,7 +8,7 @@
 | Aisha | | AishaAbdullahi-12 | System Administrator |
 | Mohamud |abdal110@umn.edu | happyducks101 | QA |
 | Jama | aden0100@umn.edu | JamaAden | Developer |
-| Anwar | | | Developer |
+| Anwar |ahme1221@umn.edu | | Developer |
 
 ## Communication
 
