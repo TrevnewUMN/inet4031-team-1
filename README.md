@@ -4,7 +4,7 @@
 | Name | Email |
 |---|---|
 | Tim Revnew |revne003@umn.edu |TrevnewUMN |
-| Aisha | |
+| Aisha |abdul785@umn.edu |
 | Mohamud |abdal110@umn.edu |
 | Jama | aden0100@umn.edu|
 | Anwar | | 
