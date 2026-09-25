@@ -32,6 +32,8 @@ Team members should avoid making completed project changes directly on the main 
 
 ## Meetings
 
+Port: 8081
+
 The team will meet during scheduled class and lab time.
 
 Additional communication and coordination will take place through the team group chat as needed.
