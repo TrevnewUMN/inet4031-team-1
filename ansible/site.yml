@@ -1,0 +1,7 @@
+---
+- name: Deploy INET4031 application stack
+  hosts: all
+  become: false
+
+  roles:
+    - app-stack

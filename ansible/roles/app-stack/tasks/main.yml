@@ -1,0 +1,14 @@
+---
+- name: Verify week-2 application directory exists
+  ansible.builtin.stat:
+    path: "{{ playbook_dir }}/../week-2"
+  register: week2_dir
+
+- name: Fail if week-2 application directory is missing
+  ansible.builtin.fail:
+    msg: "week-2 application directory was not found."
+  when: not week2_dir.stat.exists
+
+- name: Display application stack location
+  ansible.builtin.debug:
+    msg: "Application stack found at {{ playbook_dir }}/../week-2"
