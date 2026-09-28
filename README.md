@@ -7,7 +7,7 @@
 | Aisha |abdul785@umn.edu |
 | Mohamud |abdal110@umn.edu |
 | Jama | aden0100@umn.edu|
-| Anwar | | 
+| Anwar | ahme1221@umn.edu| 
 
 
 Port: 8081
