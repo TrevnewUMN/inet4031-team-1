@@ -109,20 +109,10 @@ echo ""
 echo "Check 4: Docker Compose Stack Health"
 echo "--------------------------------------"
 
-if command -v docker &> /dev/null; then
-    COMPOSE_STATUS=$(docker compose -f "$REPO_ROOT/week-2/docker-compose.yml" ps 2>/dev/null || echo "")
-    if [ -z "$COMPOSE_STATUS" ]; then
-        check_warn "Could not read docker compose status (stack may not be running)"
-    else
-        HEALTHY_COUNT=$(echo "$COMPOSE_STATUS" | grep -c "healthy" || echo "0")
-        if [ "$HEALTHY_COUNT" -ge 2 ]; then
-            check_pass "db and flask report healthy ($HEALTHY_COUNT healthy; nginx has no healthcheck defined)"
-        else
-            check_warn "Fewer than 2 services report healthy ($HEALTHY_COUNT healthy) - run 'docker compose -f week-2/docker-compose.yml ps' to check"
-        fi
-    fi
+if "$REPO_ROOT/week-2/health-check.sh"; then
+    check_pass "db, flask, and nginx are healthy"
 else
-    check_warn "docker not available - skipping stack health check"
+    check_fail "One or more services are stopped or unhealthy"
 fi
 
 # =========================================
@@ -133,13 +123,13 @@ echo "Check 5: Application Health Check"
 echo "-----------------------------------"
 
 if command -v curl &> /dev/null; then
-    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health 2>/dev/null || echo "000")
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/api/health 2>/dev/null || echo "000")
     if [ "$HTTP_CODE" == "200" ]; then
-        check_pass "Nginx responds on http://localhost:8080/health (HTTP $HTTP_CODE)"
+        check_pass "Nginx responds on http://localhost:8081/api/health (HTTP $HTTP_CODE)"
     elif [ "$HTTP_CODE" != "000" ]; then
-        check_warn "Nginx responded on http://localhost:8080/health but with HTTP $HTTP_CODE (expected 200)"
+        check_fail "Nginx responded on http://localhost:8081/api/health but with HTTP $HTTP_CODE (expected 200)"
     else
-        check_warn "No response from http://localhost:8080/health (stack may not be running)"
+        check_fail "No response from http://localhost:8081/api/health (stack may not be running)"
     fi
 else
     check_warn "curl not available - skipping health check"
