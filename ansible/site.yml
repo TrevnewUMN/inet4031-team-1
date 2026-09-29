@@ -1,7 +1,8 @@
 ---
-- name: Deploy INET4031 application stack
-  hosts: all
-  become: false
+- name: Deploy application stack
+  hosts: localhost
+  connection: local
+  become: yes
 
   roles:
     - app-stack
