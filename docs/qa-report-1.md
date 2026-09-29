@@ -1,9 +1,10 @@
+
 # QA Report: Sprint 1 Week 2
 
 QA is responsible for running all validation checks and signing off before deliverables are submitted. This report documents the validation process.
 
 **QA Team Member:** [Mohamud Abdalla]
-**Date Updatedd:** [2026-09-28]
+**Date Updated:** [2026-09-28]
 
 ---
 
@@ -18,6 +19,7 @@ QA is responsible for running all validation checks and signing off before deliv
 **Actual Result:**
 ```
 TODO: Paste the actual output of docker compose ps
+Passed: 9, Failed: 0, Status: ALL CHECKS PASSED
 ```
 
 **Status:** TODO: [x] Pass [ ] Fail
@@ -53,7 +55,7 @@ curl http://localhost:8081/api/incidents
 ```
 
 **Actual Result:**
-```[{"created_at":"2026-09-29T02:01:07.750962+00:00","description":"Week 2 test","id":1,"status":"open","title":"Persistence check"}]O: Paste the output showing the incident was retrieved after restart
+```[{"created_at":"2026-09-29T02:01:07.750962+00:00","description":"Week 2 test","id":1,"status":"open","title":"Persistence check"}]
 ```
 
 **Status:** TODO:[x] Pass [ ] Fail
@@ -70,7 +72,7 @@ The test incident was still present after restarting the database container. No 
 
 **Actual Result:**
 ```
-TODO: Paste the PLAY RECAP section from the second run
+TODO: Paste the PLAY RECAP section from the second run:
 ansible-playbook --syntax-check -i ansible/inventory ansible/site.yml
 playbook: ansible/site.yml
 
@@ -93,6 +95,7 @@ Week 1 instructions say playbooks are not expected to run in this lab environmen
 **Actual Result:**
 ```
 TODO: Paste the full output of the check script
+Exit code: 0
 ```
 
 **Status:** TODO: [x ] Pass [ ] Fail
