@@ -6,3 +6,9 @@
 
   roles:
     - app-stack
+
+- name: Initialize OpenTofu
+  hosts: localhost
+  connection: local
+  roles:
+    - opentofu-setup
