@@ -1,0 +1,10 @@
+---
+- name: Confirm OpenTofu is installed
+  command: tofu version
+  changed_when: false
+
+- name: Initialize OpenTofu working directory
+  command: tofu init
+  args:
+    chdir: "{{ playbook_dir }}/../infrastructure"
+  changed_when: false
