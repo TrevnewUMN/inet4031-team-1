@@ -1,12 +1,23 @@
+
 ---
-- name: Deploy application stack
+# Week 2 - Docker Compose
+# Disabled while working on Kubernetes deployment.
+# - name: Deploy application stack
+#   hosts: localhost
+#   connection: local
+#   become: yes
+#   roles:
+#     - app-stack
+
+# Week 3 - Kubernetes cluster setup
+- name: Set up k3d Kubernetes cluster
   hosts: localhost
   connection: local
-  become: yes
-
+  become: false
   roles:
-    - app-stack
+    - k3d-setup
 
+# Week 4 - OpenTofu installation
 - name: Initialize OpenTofu
   hosts: localhost
   connection: local
