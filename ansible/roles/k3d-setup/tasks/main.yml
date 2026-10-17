@@ -1,0 +1,26 @@
+
+---
+# Week 3 - k3d Kubernetes cluster setup
+
+- name: Check whether k3d is installed
+  ansible.builtin.command: k3d version
+  register: k3d_version
+  changed_when: false
+
+- name: Check existing k3d clusters
+  ansible.builtin.command: k3d cluster list -o json
+  register: existing_clusters
+  changed_when: false
+
+- name: Create Team 1 cluster if missing
+  ansible.builtin.command:
+    argv:
+      - k3d
+      - cluster
+      - create
+      - team1
+      - --agents
+      - "2"
+  when: >-
+    'team1' not in
+    (existing_clusters.stdout | from_json | map(attribute='name') | list)
