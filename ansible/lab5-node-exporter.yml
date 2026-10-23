@@ -1,0 +1,7 @@
+---
+- name: Deploy Node Exporter to Lab 5 servers
+  hosts: lab5_nodes
+  become: true
+
+  roles:
+    - node-exporter
