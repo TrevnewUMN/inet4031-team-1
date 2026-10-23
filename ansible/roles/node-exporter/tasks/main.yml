@@ -1,0 +1,22 @@
+---
+- name: Install Node Exporter
+  ansible.builtin.package:
+    name: prometheus-node-exporter
+    state: present
+  become: true
+
+- name: Start and enable Node Exporter
+  ansible.builtin.service:
+    name: prometheus-node-exporter
+    state: started
+    enabled: true
+  become: true
+- name: Verify Node Exporter metrics endpoint
+  ansible.builtin.uri:
+    url: http://127.0.0.1:9100/metrics
+    method: GET
+    status_code: 200
+  register: node_exporter_check
+  retries: 5
+  delay: 3
+  until: node_exporter_check.status == 200
