@@ -1,22 +1,57 @@
 ---
-- name: Install Node Exporter
-  ansible.builtin.package:
-    name: prometheus-node-exporter
-    state: present
-  become: true
+# node-exporter runs as a DaemonSet from the Prometheus Helm release, so
+# Kubernetes starts one copy on every node (server-0, agent-0, agent-1).
+- name: Set repository paths
+  ansible.builtin.set_fact:
+    repo_root: "{{ playbook_dir }}/.."
+    node_exporter_daemonset: prometheus-prometheus-node-exporter
 
-- name: Start and enable Node Exporter
-  ansible.builtin.service:
-    name: prometheus-node-exporter
-    state: started
-    enabled: true
-  become: true
-- name: Verify Node Exporter metrics endpoint
+- name: Install or upgrade the Prometheus release with node-exporter enabled
+  ansible.builtin.command:
+    argv:
+      - helm
+      - upgrade
+      - prometheus
+      - prometheus-community/prometheus
+      - --version
+      - "29.35.0"
+      - --namespace
+      - monitoring
+      - -f
+      - "{{ repo_root }}/week-5/prometheus-values.yaml"
+      - -f
+      - "{{ repo_root }}/week-5/canvas-values.yaml"
+  register: helm_upgrade
+  changed_when: "'has been upgraded' in helm_upgrade.stdout"
+
+- name: Wait until node-exporter is running on every node
+  ansible.builtin.command: >-
+    kubectl rollout status daemonset/{{ node_exporter_daemonset }}
+    -n monitoring --timeout=180s
+  changed_when: false
+
+- name: Look up each node's name and IP address
+  ansible.builtin.command: >-
+    kubectl get nodes -o
+    jsonpath='{range .items[*]}{.metadata.name}{" "}{.status.addresses[?(@.type=="InternalIP")].address}{"\n"}{end}'
+  register: node_list
+  changed_when: false
+
+- name: Verify /metrics on port 9100 on each node
   ansible.builtin.uri:
-    url: http://127.0.0.1:9100/metrics
-    method: GET
-    status_code: 200
-  register: node_exporter_check
+    url: "http://{{ item.split()[1] }}:9100/metrics"
+    return_content: true
+  loop: "{{ node_list.stdout_lines }}"
+  loop_control:
+    label: "{{ item.split()[0] }}"
+  register: node_metrics
   retries: 5
   delay: 3
-  until: node_exporter_check.status == 200
+  until: node_metrics.status == 200 and 'node_cpu_seconds_total' in node_metrics.content
+
+- name: Show the result for each node
+  ansible.builtin.debug:
+    msg: "{{ item.item.split()[0] }} ({{ item.item.split()[1] }}:9100/metrics) -> HTTP {{ item.status }}"
+  loop: "{{ node_metrics.results }}"
+  loop_control:
+    label: "{{ item.item.split()[0] }}"

@@ -1,4 +1,4 @@
+# Lab 5 runs on the lab VM itself. The "fleet" is the three k3d nodes of the
+# team1 cluster, which Helm/kubectl reach from here.
 [lab5_nodes]
-web-01
-web-02
-db-01
+localhost ansible_connection=local

@@ -1,0 +1,118 @@
+---
+# Canvas Lab 5 additions (Tasks 1, 2 and 4), layered on top of the Wiki's file.
+# Always pass BOTH files, Wiki file first, so the Wiki settings stay in place:
+#
+#   helm upgrade prometheus prometheus-community/prometheus --version 29.35.0 \
+#     --namespace monitoring \
+#     -f week-5/prometheus-values.yaml -f week-5/canvas-values.yaml
+#
+# Our "fleet" is the three k3d nodes of the team1 cluster (k3d-team1-server-0,
+# k3d-team1-agent-0, k3d-team1-agent-1). The lab VM has no web-01/web-02/db-01 hosts.
+
+# Task 1: node-exporter on every node.
+# The chart runs it as a DaemonSet, so Kubernetes puts one copy on each node.
+# hostNetwork is on by default, so each copy answers on <node IP>:9100/metrics.
+prometheus-node-exporter:
+  enabled: true
+  # Our own "node-exporter" scrape job below collects it, so the chart's generic
+  # service-endpoints job doesn't scrape it a second time.
+  prometheusScrape: false
+  hostRootFsMount:
+    enabled: true
+    # k3d nodes are Docker containers. "HostToContainer" needs a shared mount,
+    # which those containers don't have, so the pod would fail to start.
+    mountPropagation: None
+  extraArgs:
+    - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|run/containerd/.+|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+    # Same list as the chart default minus "overlay": a k3d node's root disk is an
+    # overlay filesystem, and we want its usage for the disk alert and Grafana.
+    - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs|erofs)$
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 64Mi
+
+# Task 2: a scrape job for node-exporter on all three nodes.
+# It finds the node-exporter pods and labels each target with its node name.
+scrapeConfigs:
+  node-exporter:
+    job_name: node-exporter
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names: [monitoring]
+        selectors:
+          - role: pod
+            label: app.kubernetes.io/name=prometheus-node-exporter
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_container_port_number]
+        regex: "9100"
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_node_name]
+        target_label: instance
+      - source_labels: [__meta_kubernetes_pod_node_name]
+        target_label: node
+
+# Task 4: alert rules. Helm replaces lists instead of merging them, so the Wiki's
+# flask-error-rate group is repeated here to keep it.
+serverFiles:
+  alerting_rules.yml:
+    groups:
+      - name: flask-error-rate
+        interval: 1m
+        rules:
+          - alert: HTTP5xxErrorRateHigh
+            expr: sum(rate(flask_http_request_duration_seconds_count{status=~"5.."}[5m])) / sum(rate(flask_http_request_duration_seconds_count[5m])) > 0.01
+            for: 1m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Flask is returning more than 1% 5xx responses"
+      - name: node-disk
+        interval: 1m
+        rules:
+          - alert: NodeDiskUsageHigh
+            expr: (1 - node_filesystem_avail_bytes{job="node-exporter",mountpoint="/"} / node_filesystem_size_bytes{job="node-exporter",mountpoint="/"}) * 100 > 80
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Disk usage above 80% on {{ $labels.instance }}"
+              description: "{{ $labels.mountpoint }} on {{ $labels.instance }} is {{ printf \"%.0f\" $value }}% full."
+
+# Task 4: Alertmanager sends alerts to Slack.
+# The webhook URL is NOT in this file. It lives in the Kubernetes Secret
+# "alertmanager-slack" (key "url"), created by hand on the VM.
+alertmanager:
+  enabled: true
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+  extraSecretMounts:
+    - name: slack-webhook
+      mountPath: /etc/alertmanager-secrets
+      subPath: ""
+      secretName: alertmanager-slack
+      readOnly: true
+  config:
+    global: {}
+    route:
+      receiver: slack
+      group_by: [alertname, instance]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 3h
+    receivers:
+      - name: slack
+        slack_configs:
+          - api_url_file: /etc/alertmanager-secrets/url
+            send_resolved: true
+            title: '[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }} (team1)'
+            text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ if .Annotations.description }}: {{ .Annotations.description }}{{ end }}{{ "\n" }}{{ end }}'
