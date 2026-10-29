@@ -1,0 +1,4 @@
+# Test and lint tools for CI (Lab 6, Task 1). Not installed in the Docker image.
+-r requirements.txt
+pytest==8.3.3
+ruff==0.6.9

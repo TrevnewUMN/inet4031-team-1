@@ -1,0 +1,36 @@
+---
+# Lab 5, Task 5: spike CPU and memory on one node for 5 minutes, then stop.
+# There is no web-01 VM here, so k3d-team1-agent-0 plays "web-01".
+# Limits keep the test from slowing down the other teams on the shared VM.
+#   kubectl apply -f week-5/stress-web-01.yaml       # start
+#   kubectl delete job stress-web-01                  # stop early / clean up
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: stress-web-01
+  labels:
+    app: stress
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: stress
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: k3d-team1-agent-0
+      restartPolicy: Never
+      containers:
+        - name: stress
+          # Same image the Kubernetes documentation uses for stress examples.
+          image: polinux/stress
+          command: ["stress"]
+          args: ["--cpu", "1", "--vm", "1", "--vm-bytes", "1G", "--vm-hang", "1", "--timeout", "300s"]
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1100Mi
+            limits:
+              cpu: "1"
+              memory: 1200Mi

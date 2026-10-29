@@ -1,0 +1,19 @@
+---
+- name: Check if k3d is installed
+  command: which k3d
+  register: k3d_check
+  failed_when: false
+  changed_when: false
+
+- name: Install k3d
+  shell: curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+  when: k3d_check.rc != 0
+
+- name: Check if k3d cluster exists
+  command: k3d cluster list
+  register: cluster_list
+  changed_when: false
+
+- name: Create k3d cluster if not present
+  command: k3d cluster create team1 --agents 2 --port "8091:80@loadbalancer" --k3s-arg "--disable=traefik@server:0" --subnet 100.97.1.0/24
+  when: "'team1' not in cluster_list.stdout"

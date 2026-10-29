@@ -1,0 +1,12 @@
+---
+# Lab 5, Task 1: deploy node-exporter to every node of the team1 cluster and
+# check that /metrics answers on port 9100 on each node.
+# Run from the repo root:
+#   ansible-playbook -i ansible/inventory-lab5 ansible/lab5-node-exporter.yml
+- name: Deploy Node Exporter to the Lab 5 nodes
+  hosts: lab5_nodes
+  gather_facts: false
+  # No become: Helm and kubectl run as the logged-in user, like the rest of the lab.
+
+  roles:
+    - node-exporter

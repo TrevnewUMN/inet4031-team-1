@@ -1,0 +1,57 @@
+---
+# Prometheus Values Configuration
+# This file configures the prometheus-community/prometheus Helm chart (version 29.35.0).
+# It is sized for a VM shared by several teams. Anything not listed here keeps the chart's default.
+
+# Reviewed: components that are turned off
+# Alertmanager sends notifications and the pushgateway accepts pushed metrics.
+# Nobody is on call for a lab VM, and nothing in this lab pushes metrics.
+# node-exporter reports on the VM itself. Every team's cluster runs on the same VM,
+# so it would report the same numbers several times over. This lab only needs container metrics.
+alertmanager:
+  enabled: false
+prometheus-pushgateway:
+  enabled: false
+prometheus-node-exporter:
+  enabled: false
+
+# Reviewed: server settings
+# Two days of history is plenty for a lab. With no volume, the history is lost
+# whenever the Prometheus pod restarts. The memory limit keeps Prometheus from
+# starving the other teams on the VM.
+server:
+  retention: 2d
+  persistentVolume:
+    enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+
+# These two jobs scrape the API server and the kubelet's own metrics. Nothing in
+# this lab reads them. Container CPU and memory, including
+# container_cpu_cfs_throttled_periods_total (required for Week 9), come from the
+# kubernetes-nodes-cadvisor job, which stays on.
+scrapeConfigs:
+  kubernetes-api-servers:
+    enabled: false
+  kubernetes-nodes:
+    enabled: false
+
+# Part 3, Step 14: alert when more than 1% of Flask requests return a 5xx error
+# for at least one minute.
+serverFiles:
+  alerting_rules.yml:
+    groups:
+      - name: flask-error-rate
+        interval: 1m
+        rules:
+          - alert: HTTP5xxErrorRateHigh
+            expr: sum(rate(flask_http_request_duration_seconds_count{status=~"5.."}[5m])) / sum(rate(flask_http_request_duration_seconds_count[5m])) > 0.01
+            for: 1m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Flask is returning more than 1% 5xx responses"

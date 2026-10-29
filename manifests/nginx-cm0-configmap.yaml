@@ -1,0 +1,26 @@
+apiVersion: v1
+data:
+  nginx.conf: |
+    server {
+        listen 80;
+        location = /health {
+            proxy_pass http://flask:5000/health;
+            proxy_set_header Host $host;
+        }
+        location /api/ {
+            proxy_pass http://flask:5000/;
+            proxy_set_header Host $host;
+        }
+
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+        }
+    }
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  labels:
+    app: nginx
+  name: nginx-cm0
