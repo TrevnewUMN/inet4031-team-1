@@ -4,6 +4,9 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f ../week-2/docker-compose.yml
     kompose.version: 1.38.0 (a8f5d1cbd)
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "5000"
+    prometheus.io/path: /metrics
   labels:
     app: flask
   name: flask
