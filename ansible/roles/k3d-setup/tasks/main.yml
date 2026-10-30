@@ -1,4 +1,3 @@
-
 ---
 # Week 3 - k3d Kubernetes cluster setup
 
@@ -32,6 +31,7 @@
   register: existing_clusters
   changed_when: false
 
+# Port and subnet match the cluster on main (nginx on 8091, nodes on 100.97.1.0/24).
 - name: Create Team 1 cluster if missing
   ansible.builtin.command:
     argv:
@@ -43,10 +43,13 @@
       - "1"
       - --agents
       - "2"
+      - --port
+      - "8091:80@loadbalancer"
       - --k3s-arg
       - "--disable=traefik@server:0"
+      - --subnet
+      - 100.97.1.0/24
   when: >-
     'team1' not in
     (existing_clusters.stdout | from_json |
     map(attribute='name') | list)
-

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../week-2/docker-compose.yml
+    kompose.version: 1.38.0 (a8f5d1cbd)
+  labels:
+    app: db
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../week-2/docker-compose.yml
+        kompose.version: 1.38.0 (a8f5d1cbd)
+      labels:
+        app: db
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: db-credentials        
+          image: postgres:15-alpine
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - appuser
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: db
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: db-data
+      restartPolicy: Always
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: db-data

@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../week-2/docker-compose.yml
+    kompose.version: 1.38.0 (a8f5d1cbd)
+  labels:
+    app: nginx
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../week-2/docker-compose.yml
+        kompose.version: 1.38.0 (a8f5d1cbd)
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - image: nginx:alpine
+          livenessProbe:
+            exec:
+              command:
+                - wget
+                - -q
+                - -O
+                - /dev/null
+                - http://127.0.0.1/
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: nginx
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d/default.conf
+              name: nginx-cm0
+              readOnly: true
+              subPath: default.conf
+            - mountPath: /usr/share/nginx/html
+              name: nginx-cm1
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            items:
+              - key: nginx.conf
+                path: default.conf
+            name: nginx-cm0
+          name: nginx-cm0
+        - configMap:
+            name: nginx-cm1
+          name: nginx-cm1
