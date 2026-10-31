@@ -1,0 +1,41 @@
+---
+- name: Allow HTTPS on web servers
+  community.general.ufw:
+    rule: allow
+    port: "443"
+    proto: tcp
+  when: "'web' in group_names"
+
+- name: Allow Flask traffic from approved web servers
+  community.general.ufw:
+    rule: allow
+    port: "8080"
+    proto: tcp
+    from_ip: "{{ item }}"
+  loop: "{{ web_server_ips }}"
+  when: "'app' in group_names"
+
+- name: Allow PostgreSQL from approved app servers
+  community.general.ufw:
+    rule: allow
+    port: "5432"
+    proto: tcp
+    from_ip: "{{ item }}"
+  loop: "{{ app_server_ips }}"
+  when: "'db' in group_names"
+
+- name: Allow SSH from control node
+  community.general.ufw:
+    rule: allow
+    port: "22"
+    proto: tcp
+    from_ip: "{{ control_node_ip }}"
+
+- name: Set default incoming policy to deny
+  community.general.ufw:
+    direction: incoming
+    policy: deny
+
+- name: Enable firewall
+  community.general.ufw:
+    state: enabled
