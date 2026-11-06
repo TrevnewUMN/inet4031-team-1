@@ -4,3 +4,4 @@ week-2/.env
 infrastructure/terraform.tfstate
 infrastructure/terraform.tfstate.backup
 infrastructure/.terraform/
+week-8/.env.backup
