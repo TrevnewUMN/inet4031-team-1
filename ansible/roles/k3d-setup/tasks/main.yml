@@ -1,19 +1,55 @@
 ---
-- name: Check if k3d is installed
-  command: which k3d
-  register: k3d_check
-  failed_when: false
-  changed_when: false
+# Week 3 - k3d Kubernetes cluster setup
 
-- name: Install k3d
-  shell: curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+- name: Check operating system
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['system'] == 'Linux'
+      - ansible_facts['architecture'] == 'x86_64'
+    fail_msg: "This role currently supports Linux x86_64 only."
+
+- name: Check whether k3d is installed
+  ansible.builtin.command: k3d version
+  register: k3d_check
+  changed_when: false
+  failed_when: false
+
+- name: Install k3d if missing
+  ansible.builtin.get_url:
+    url: "https://github.com/k3d-io/k3d/releases/download/v5.9.0/k3d-linux-amd64"
+    dest: /usr/local/bin/k3d
+    mode: "0755"
+  become: true
   when: k3d_check.rc != 0
 
-- name: Check if k3d cluster exists
-  command: k3d cluster list
-  register: cluster_list
+- name: Check Docker availability
+  ansible.builtin.command: docker info
   changed_when: false
 
-- name: Create k3d cluster if not present
-  command: k3d cluster create team1 --agents 2 --port "8091:80@loadbalancer" --k3s-arg "--disable=traefik@server:0" --subnet 100.97.1.0/24
-  when: "'team1' not in cluster_list.stdout"
+- name: Check existing k3d clusters
+  ansible.builtin.command: k3d cluster list -o json
+  register: existing_clusters
+  changed_when: false
+
+# Port and subnet match the cluster on main (nginx on 8091, nodes on 100.97.1.0/24).
+- name: Create Team 1 cluster if missing
+  ansible.builtin.command:
+    argv:
+      - k3d
+      - cluster
+      - create
+      - team1
+      - --servers
+      - "1"
+      - --agents
+      - "2"
+      - --port
+      - "8091:80@loadbalancer"
+      - --k3s-arg
+      - "--disable=traefik@server:0"
+      - --subnet
+      - 100.97.1.0/24
+  when: >-
+    'team1' not in
+    (existing_clusters.stdout | from_json |
+    map(attribute='name') | list)
