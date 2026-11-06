@@ -2,8 +2,25 @@
 
 QA is responsible for running all validation checks and signing off before deliverables are submitted. This report documents the validation process.
 
-**QA Team Member:** [Name]
-**Date Completed:** [Date]
+
+**QA Review:** October 16, 2026
+
+**QA Status:** In Progress - Full validation pending
+
+**Current Progress:**
+- Week 3 k3d setup play has been added to `ansible/site.yml` on main.
+- The k3d setup role has been created in pull request #34 and is awaiting review.
+- The team's Kubernetes cluster was previously deployed using the name `team1`.
+- Some Kubernetes manifest files are still missing from GitHub.
+- Full Kubernetes validation has not been completed due to issues with the shared VM.
+
+**Known Blockers:**
+- The shared VM experienced low disk space, causing Kubernetes pods to be evicted.
+- The Flask image needs to be restored.
+- Week 3 Kubernetes manifests still need to be committed.
+- The k3d setup role needs to be completed and tested.
+- The cluster name in this QA template (`myapp`) differs from the team's cluster name (`team1`).
+
 
 ---
 
@@ -13,8 +30,9 @@ QA is responsible for running all validation checks and signing off before deliv
 
 **Test:** Run `k3d cluster list`
 
-**Expected:** One row showing `myapp` with `SERVERS 1/1` and `AGENTS 2/2` (all nodes up)
+**Expected:** One row showing `team1` with SERVERS 1/1 and AGENTS 2/2 (all nodes up).
 
+**Note:** The original Week 3 template specifies `myapp`, but our team deployed the cluster as `team1`. This difference needs to be confirmed against the lab requirements.
 **Actual Result:**
 ```
 TODO: Paste the actual output of k3d cluster list
@@ -152,22 +170,35 @@ TODO: [ ] Week 3 storage check values are recorded
 
 ---
 
+
 ## Summary
 
-**Overall Status:** [ ] ALL CHECKS PASS [ ] SOME CHECKS FAIL
+**Overall Status:** In Progress - Validation Incomplete
 
-**Blockers:** [List any blockers that prevent submission]
+**Blockers:**
+- The shared VM experienced disk space issues, causing Kubernetes pods to be evicted.
+- The Flask container image is currently unavailable.
+- Some Week 3 Kubernetes manifests are missing from GitHub.
+- The Week 3 k3d setup role still needs to be completed and tested.
+- The Week 3 validation script has not been confirmed passing.
 
-**Corrective Actions Taken:** [List any fixes applied during QA]
+**Corrective Actions Taken:**
+- Updated `ansible/site.yml` to include the Week 3 k3d setup play.
+- Commented out the older Docker Compose deployment play.
+- Created the `k3d-setup` Ansible role in PR #34.
+- Documented the missing manifests and current VM issues.
 
-**QA Sign-Off:**
+**QA Sign-Off:** Pending
 
-By signing below, QA certifies that all required validation checks have been executed and all deliverables meet the acceptance criteria.
-
-**QA Signature:** _________________    **Date:** __________
+The full validation checks have not been completed. Final QA approval will be recorded after the environment is working and all required tests pass.
 
 ---
 
 ## Notes for Sprint 3
 
-[Any observations or recommendations for the next sprint]
+The team should focus on completing the missing Kubernetes manifests, improving the Ansible automation, and making sure the application can be rebuilt from GitHub.
+
+The shared VM disk space issue needs to be resolved before the team can fully verify the Kubernetes deployment.
+
+The Flask image name should also be consistent between the cluster and OpenTofu configuration.
+

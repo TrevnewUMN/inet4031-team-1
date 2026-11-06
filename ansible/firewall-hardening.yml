@@ -1,0 +1,8 @@
+---
+- name: Configure firewall hardening
+  hosts: web:app:db
+  become: true
+  gather_facts: true
+
+  roles:
+    - firewall-hardening
