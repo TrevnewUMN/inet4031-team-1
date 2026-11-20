@@ -72,17 +72,21 @@ The OpenTofu changes were merged into the main branch through pull request #32. 
 
 ## Ansible Automation
 
-Our team uses Ansible to help automate the setup and deployment process.
+The `ansible/` folder holds our automation playbooks and roles. As the Week 1 Wiki instructs, they are written and committed for reference and for rebuilding on an empty VM, but they are **not run on the shared lab VM**. Bringing the app up does not depend on them.
 
-The `ansible/` folder contains our playbook and automation roles.
+`ansible/site.yml` grows one play per week (Weeks 1 to 4), run with `ansible/inventory` (localhost):
 
-Our automation work includes:
-- Setting up the application environment.
-- Deploying the Docker Compose application.
-- Adding an OpenTofu installation role.
-- Working toward automating the k3d Kubernetes cluster setup.
+| Week | Play (role) | What it does |
+| --- | --- | --- |
+| 1 | Baseline environment setup | Installs baseline packages (curl, git, vim, Python), EPEL, ansible-core and Docker CE; starts Docker and adds the user to the `docker` group |
+| 2 | Deploy application stack (`app-stack`) | Brings up the Docker Compose stack. Commented out in Week 3 because the app now runs on Kubernetes |
+| 3 | Set up k3d cluster (`k3d-setup`) | Installs k3d if missing and creates the `team1` cluster (2 agents, port 8091, subnet 100.97.1.0/24) |
+| 4 | Initialize OpenTofu (`opentofu-setup`) | Confirms OpenTofu is installed and runs `tofu init` in `infrastructure/` |
 
-The Week 3 k3d setup role still needs to be reviewed and completed.
+Other playbooks, separate from `site.yml`:
+
+- `ansible/lab5-node-exporter.yml` (inventory `ansible/inventory-lab5`, role `node-exporter`): Lab 5 Canvas Task 1, turns on node-exporter for every node of the `team1` cluster and checks `/metrics` on port 9100. It uses Helm and kubectl as the logged-in user, and is the one playbook we ran on the lab VM.
+- `ansible/firewall-hardening.yml` (role `firewall-hardening`): Lab 7 Canvas Task 1, a ufw default-deny policy for web, app and db hosts. Reference only: the shared lab VM has no separate web, app or db hosts.
 
 ## Environment Recovery
 
