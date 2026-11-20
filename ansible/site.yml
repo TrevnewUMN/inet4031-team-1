@@ -1,23 +1,110 @@
-
 ---
-# Week 2 - Docker Compose
-# Disabled while working on Kubernetes deployment.
+# Week 1 - Baseline environment setup
+- name: Baseline environment setup
+  hosts: localhost
+  connection: local
+  become: yes
+  tasks:
+    - name: Update dnf cache
+      dnf:
+        update_cache: yes
+
+    - name: Ensure baseline packages are installed
+      dnf:
+        name:
+          - curl
+          - git
+          - vim
+          - python3
+          - python3-pip
+        state: present
+
+    - name: Ensure EPEL repository is enabled
+      dnf:
+        name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+        state: present
+        disable_gpg_check: yes
+
+    - name: Ensure Ansible is installed
+      dnf:
+        name: ansible-core
+        state: present
+
+    - name: Import Docker CE GPG key
+      ansible.builtin.rpm_key:
+        key: https://download.docker.com/linux/rhel/gpg
+        state: present
+
+    - name: Add Docker CE repository
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/rhel/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+        mode: '0644'
+
+    - name: Remove podman-docker (conflicts with docker-ce's docker binary)
+      dnf:
+        name:
+          - podman-docker
+          - podman
+        state: absent
+
+    - name: Ensure Docker is installed
+      dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+        update_cache: yes
+
+    - name: Ensure Docker service is enabled and running
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add invoking user to the docker group
+      ansible.builtin.user:
+        name: "{{ lookup('env', 'SUDO_USER') or lookup('env', 'USER') }}"
+        groups: docker
+        append: yes
+
+    - name: Check current Docker CLI context
+      ansible.builtin.command: docker context show
+      become: yes
+      become_user: "{{ lookup('env', 'SUDO_USER') or lookup('env', 'USER') }}"
+      register: docker_current_context
+      changed_when: false
+      failed_when: false
+
+    - name: Reset Docker CLI context to default (in case a stale podman context was left behind)
+      ansible.builtin.command: docker context use default
+      become: yes
+      become_user: "{{ lookup('env', 'SUDO_USER') or lookup('env', 'USER') }}"
+      changed_when: docker_current_context.stdout | default('') != 'default'
+
+# Week 2 - Docker Compose app stack
+# Commented out in Week 3 (Step 24): the app now runs on Kubernetes.
 # - name: Deploy application stack
 #   hosts: localhost
 #   connection: local
 #   become: yes
+#
 #   roles:
 #     - app-stack
 
-# Week 3 - Kubernetes cluster setup
-- name: Set up k3d Kubernetes cluster
+# Week 3 - k3d Kubernetes cluster
+- name: Set up k3d cluster
   hosts: localhost
   connection: local
-  become: false
+  become: yes
+  environment:
+    PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
   roles:
     - k3d-setup
 
-# Week 4 - OpenTofu installation
+# Week 4 - OpenTofu
 - name: Initialize OpenTofu
   hosts: localhost
   connection: local
