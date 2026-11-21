@@ -1,0 +1,10 @@
+Client Version: v1.35.5
+Kustomize Version: v5.7.1
+k3d version v5.9.0
+k3s version v1.35.5-k3s1 (default)
+k6 v2.4.0 (commit/dd9395906d, go1.26.11, linux/amd64)
+v3.22.0+g144ca65
+Docker version 29.10.0, build fdd4b8e
+jq-1.6
+curl 7.76.1 (x86_64-redhat-linux-gnu) libcurl/7.76.1 OpenSSL/3.5.9 zlib/1.2.11 brotli/1.0.9 libidn2/2.3.0 libpsl/0.21.1 (+libidn2/2.3.0) libssh/0.10.4/openssl/zlib nghttp2/1.43.0
+DiG 9.16.50-RH

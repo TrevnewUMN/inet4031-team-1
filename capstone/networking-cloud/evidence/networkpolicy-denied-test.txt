@@ -1,0 +1,6 @@
+Sat Nov 21 12:53:20 PM CST 2026
+NAME                READY   STATUS    RESTARTS   AGE   LABELS
+team1-policy-test   1/1     Running   0          42s   run=team1-policy-test
+Connecting to flask.default.svc.cluster.local:5000 (10.43.133.158:5000)
+wget: can't connect to remote host (10.43.133.158): Connection refused
+command terminated with exit code 1

@@ -1,0 +1,67 @@
+Sat Nov 21 12:33:52 PM CST 2026
+No resources found in default namespace.
+Name:                   flask
+Namespace:              default
+CreationTimestamp:      Tue, 13 Oct 2026 18:14:26 -0500
+Labels:                 app=flask
+Annotations:            deployment.kubernetes.io/revision: 7
+Selector:               app=flask
+Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  0 max unavailable, 1 max surge
+Pod Template:
+  Labels:           app=flask
+  Service Account:  flask-app
+  Containers:
+   flask:
+    Image:      team1-flask:latest
+    Port:       5000/TCP
+    Host Port:  0/TCP
+    Limits:
+      cpu:     100m
+      memory:  256Mi
+    Requests:
+      cpu:     100m
+      memory:  128Mi
+    Liveness:  exec [curl -f http://localhost:5000/health] delay=0s timeout=5s period=10s #success=1 #failure=3
+    Environment Variables from:
+      flask-credentials  Secret  Optional: false
+    Environment:         <none>
+    Mounts:              <none>
+  Volumes:               <none>
+  Node-Selectors:        <none>
+  Tolerations:           <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Progressing    True    NewReplicaSetAvailable
+  Available      True    MinimumReplicasAvailable
+OldReplicaSets:  flask-7d867fbcdf (0/0 replicas created), flask-85c8bd897f (0/0 replicas created), flask-66fb6f4487 (0/0 replicas created), flask-844cfb6c8f (0/0 replicas created), flask-7c7dd7db75 (0/0 replicas created), flask-cfd487b5 (0/0 replicas created)
+NewReplicaSet:   flask-766db8d85 (3/3 replicas created)
+Events:          <none>
+NAME                    READY   STATUS      RESTARTS      AGE   IP            NODE                NOMINATED NODE   READINESS GATES
+db-959c89db4-cpb5t      1/1     Running     4 (40h ago)   36d   10.42.1.103   k3d-team1-agent-1   <none>           <none>
+db-959c89db4-hx9tg      0/1     Completed   0             36d   <none>        k3d-team1-agent-1   <none>           <none>
+db-959c89db4-t76b8      0/1     Completed   1 (36d ago)   38d   <none>        k3d-team1-agent-1   <none>           <none>
+flask-766db8d85-64ch9   1/1     Running     1 (40h ago)   40h   10.42.1.99    k3d-team1-agent-1   <none>           <none>
+flask-766db8d85-dpkpg   1/1     Running     1 (40h ago)   40h   10.42.0.93    k3d-team1-agent-0   <none>           <none>
+flask-766db8d85-h9bnc   1/1     Running     0             40h   10.42.0.92    k3d-team1-agent-0   <none>           <none>
+nginx-6d5b977d6-c8x7m   0/1     Completed   0             36d   <none>        k3d-team1-agent-1   <none>           <none>
+nginx-6d5b977d6-gw56f   0/1     Completed   0             36d   <none>        k3d-team1-agent-0   <none>           <none>
+nginx-6d5b977d6-k8xbt   0/1     Completed   0             36d   <none>        k3d-team1-agent-1   <none>           <none>
+nginx-6d5b977d6-lrjbp   0/1     Completed   2 (36d ago)   38d   <none>        k3d-team1-agent-1   <none>           <none>
+nginx-6d5b977d6-sp86m   0/1     Completed   0             36d   <none>        k3d-team1-agent-1   <none>           <none>
+nginx-6d5b977d6-tpfcz   0/1     Completed   0             36d   <none>        k3d-team1-agent-0   <none>           <none>
+nginx-6d5b977d6-wstwk   1/1     Running     5 (40h ago)   36d   10.42.0.95    k3d-team1-agent-0   <none>           <none>
+NAME                    CPU(cores)   MEMORY(bytes)   
+db-959c89db4-cpb5t      3m           25Mi            
+flask-766db8d85-64ch9   5m           36Mi            
+flask-766db8d85-dpkpg   4m           27Mi            
+flask-766db8d85-h9bnc   4m           27Mi            
+nginx-6d5b977d6-wstwk   3m           8Mi             
+NAME                      POD-SELECTOR   AGE
+allow-flask-to-postgres   app=db         22d
+allow-ingress-to-nginx    app=nginx      22d
+allow-nginx-to-flask      app=flask      22d
+default-deny-ingress      <none>         22d

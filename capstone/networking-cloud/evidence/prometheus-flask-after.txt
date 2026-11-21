@@ -1,0 +1,6 @@
+Sat Nov 21 12:50:20 PM CST 2026
+NAME                        POD-SELECTOR   AGE
+allow-prometheus-to-flask   app=flask      57s
+app=flask instance=10.42.1.99:5000 job=kubernetes-service-endpoints namespace=default node=k3d-team1-agent-1 service=flask -> 1
+app=flask instance=10.42.0.93:5000 job=kubernetes-service-endpoints namespace=default node=k3d-team1-agent-0 service=flask -> 1
+app=flask instance=10.42.0.92:5000 job=kubernetes-service-endpoints namespace=default node=k3d-team1-agent-0 service=flask -> 1
